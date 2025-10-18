@@ -1,0 +1,6 @@
+{
+  "watch": ["server.ts"],
+  "ext": "ts,js,json",
+  "exec": "node --loader ts-node/esm server.ts",
+  "delay": "2500"
+}

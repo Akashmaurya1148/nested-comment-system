@@ -1,0 +1,57 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Post {
+  id       String    @id @default(uuid())
+  title    String
+  body     String
+  createdAt DateTime @default(now()) @map("created_at")
+  comments Comment[]
+  
+  @@map("posts")
+}
+
+model User {
+  id        String    @id @default(uuid())
+  name      String
+  avatar    String?
+  createdAt DateTime  @default(now()) @map("created_at")
+  comments  Comment[]
+  likes     Like[]
+  
+  @@map("users")
+}
+
+model Comment {
+  id        String    @id @default(uuid())
+  text      String
+  upvotes   Int       @default(0)
+  createdAt DateTime  @default(now()) @map("created_at")
+  updatedAt DateTime  @updatedAt
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId    String    @map("user_id")
+  post      Post      @relation(fields: [postId], references: [id], onDelete: Cascade)
+  postId    String    @map("post_id")
+  parent    Comment?  @relation("ParentChild", fields: [parentId], references: [id], onDelete: Cascade)
+  children  Comment[] @relation("ParentChild")
+  parentId  String?   @map("parent_id")
+  likes     Like[]
+  
+  @@map("comments")
+}
+
+model Like {
+  user      User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  comment   Comment @relation(fields: [commentId], references: [id], onDelete: Cascade)
+  userId    String  @map("user_id")
+  commentId String  @map("comment_id")
+
+  @@unique([userId, commentId])
+  @@map("likes")
+}
